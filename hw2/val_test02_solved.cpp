@@ -2,7 +2,7 @@
 #include <iostream>
 
 using namespace std;
-
+// g++ -g -O0 val_test02_solved.cpp -o val_test02_solved && valgrind ./val_test02_solved
 void junk_data();
 int main();
 
@@ -75,6 +75,12 @@ void junk_data()
     int *x;
 
     x = new int[10];
+    // Here is the bug, it didn't initialize, but default is 0?
+    for (int i = 0; i < 10; i++)
+    {
+        x[i] = 0;
+    }
+
     //
     //  X = { 0, 1, 2, 3, 4, ?a, ?b, ?c, ?d, ?e }.
     //
