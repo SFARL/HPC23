@@ -2,9 +2,10 @@
 
 #include <stdio.h>
 #include <math.h>
-// #include <omp.h>
+#include <omp.h>
 #include "utils.h"
 
+using namespace std;
 #define BLOCK_SIZE 16
 
 // Note: matrices are stored in column major order; i.e. the array elements in
@@ -28,9 +29,48 @@ void MMult0(long m, long n, long k, double *a, double *b, double *c)
     }
 }
 
+// void MMult1(long m, long n, long k, double *a, double *b, double *c)
+// {
+
+//     for (long p = 0; p < k; p++)
+//     {
+//         for (long i = 0; i < m; i++)
+//         {
+//             for (long j = 0; j < n; j++)
+//             {
+//                 double A_ip = a[i + p * m];
+//                 double B_pj = b[p + j * k];
+//                 double C_ij = c[i + j * m];
+//                 C_ij = C_ij + A_ip * B_pj;
+//                 c[i + j * m] = C_ij;
+//             }
+//         }
+//     }
+// }
+
 void MMult1(long m, long n, long k, double *a, double *b, double *c)
 {
-    // TODO: See instructions below
+    for (long j = 0; j < n; j += BLOCK_SIZE)
+    {
+        for (long p = 0; p < k; p++)
+        {
+            for (long i = 0; i < m; i += BLOCK_SIZE)
+            {
+                for (long jj = j; jj < j + BLOCK_SIZE; ++jj)
+                {
+                    for (long ii = i; ii < i + BLOCK_SIZE; ++ii)
+                    {
+
+                        double A_ip = a[ii + p * m];
+                        double B_pj = b[p + jj * k];
+                        double C_ij = c[ii + jj * m];
+                        C_ij = C_ij + A_ip * B_pj;
+                        c[ii + jj * m] = C_ij;
+                    }
+                }
+            }
+        }
+    }
 }
 
 int main(int argc, char **argv)
@@ -59,20 +99,21 @@ int main(int argc, char **argv)
         for (long i = 0; i < m * n; i++)
             c[i] = 0;
 
-        for (long rep = 0; rep < NREPEATS; rep++)
-        { // Compute reference solution
-            MMult0(m, n, k, a, b, c_ref);
-        }
+        // for (long rep = 0; rep < NREPEATS; rep++)
+        // { // Compute reference solution
+        //     MMult0(m, n, k, a, b, c_ref);
+        // }
 
         Timer t;
         t.tic();
         for (long rep = 0; rep < NREPEATS; rep++)
         {
+            // #pragma omp parallel
             MMult1(m, n, k, a, b, c);
         }
         double time = t.toc();
-        double flops = 0;     // TODO: calculate from m, n, k, NREPEATS, time
-        double bandwidth = 0; // TODO: calculate from m, n, k, NREPEATS, time
+        double flops = 2 * m * n * k * NREPEATS / 1e9 / time;                                            // TODO: calculate from m, n, k, NREPEATS, time
+        double bandwidth = (m * n * k + m * n + n * k + m * k) * sizeof(double) * NREPEATS / 1e9 / time; // TODO: calculate from m, n, k, NREPEATS, time
         printf("%10ld %10f %10f %10f", p, time, flops, bandwidth);
 
         double max_err = 0;
