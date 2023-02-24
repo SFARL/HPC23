@@ -1,7 +1,16 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -O3 -march=native -g
+CXXFLAGS = -std=c++11 -O3 -march=native
 
-all:
-	$(CC) $(CXXFLAGS) -o val_test01_solved val_test01_solved.cpp
+RM = rm -f
+MKDIRS = mkdir -p
+
+TARGETS = $(basename $(wildcard *.cpp))
+
+all : $(TARGETS)
+
+%:%.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 clean:
-	rm -f val_test01_solved *~
+	$(RM) $(TARGETS)
+

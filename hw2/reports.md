@@ -1,12 +1,18 @@
 # HW2 wf2099
 - [HW2 wf2099](#hw2-wf2099)
-  - [Finding Memory bugs using valgrind](#finding-memory-bugs-using-valgrind)
+  - [1. Finding Memory bugs using valgrind](#1-finding-memory-bugs-using-valgrind)
     - [Val\_test01](#val_test01)
     - [Val\_test02](#val_test02)
-  - [Optimizing matrix-matrix multiplication.](#optimizing-matrix-matrix-multiplication)
+  - [2. Optimizing matrix-matrix multiplication.](#2-optimizing-matrix-matrix-multiplication)
     - [Comparing different loop arrangements for MMult0.](#comparing-different-loop-arrangements-for-mmult0)
     - [one level blocking scheme](#one-level-blocking-scheme)
     - [When use OpenMP](#when-use-openmp)
+  - [3. Fast Sin](#3-fast-sin)
+  - [4. Pipelining and optimization](#4-pipelining-and-optimization)
+    - [compute](#compute)
+    - [Compute vec](#compute-vec)
+    - [Compute vec pipeline](#compute-vec-pipeline)
+    - [Compare different M](#compare-different-m)
 - [Appendix](#appendix)
   - [Optimizing matrix-matrix multiplication output](#optimizing-matrix-matrix-multiplication-output)
     - [MMULT0 ( n \* k \* m)](#mmult0--n--k--m)
@@ -18,7 +24,7 @@
     - [BS = 32](#bs--32)
   - [OpenMP](#openmp)
 
-## Finding Memory bugs using valgrind
+## 1. Finding Memory bugs using valgrind
 1. Run in CIMS Linux Server. 4 AMD EPYC Processor. 7.6G Memory.
 2. GCC 8.2, OpenMP4.0
 
@@ -73,7 +79,7 @@ After fix Bug:
 [wf2099@access1 hw2]$ 
 ```
 
-## Optimizing matrix-matrix multiplication.
+## 2. Optimizing matrix-matrix multiplication.
 
 ### Comparing different loop arrangements for MMult0.
 
@@ -136,6 +142,139 @@ void MMult1(long m, long n, long k, double *a, double *b, double *c)
  Dimension       Time    Gflop/s       GB/s        Error
       1984  13.307310   1.173721   4.701981 2.176428e+03
 ```
+
+## 3. Fast Sin
+I do this for sin4_vec().
+result
+```
+Reference time: 0.3226
+Taylor time:    1.1904      Error: 6.928125e-12
+Intrin time:    0.0021      Error: 2.454130e-03
+Vector time:    0.0022      Error: 6.928125e-12
+```
+
+code:
+```c++
+void sin4_vector(double *sinx, const double *x)
+{
+  // The Vec class is defined in the file intrin-wrapper.h
+  typedef Vec<double, 4> Vec4;
+  Vec4 x1, x2, x3, x5, x7, x9, x11;
+  x1 = Vec4::LoadAligned(x);
+  x2 = x1 * x1;
+  x3 = x1 * x2;
+  x5 = x3 * x2;
+  x7 = x5 * x2;
+  x9 = x7 * x2;
+  x11 = x9 * x2;
+
+  Vec4 s = x1;
+  s += x3 * c3;
+  s += x5 * c5;
+  s += x7 * c7;
+  s += x9 * c9;
+  s += x11 * c11;
+  s.StoreAligned(sinx);
+}
+```
+
+
+## 4. Pipelining and optimization
+
+x86_64, AMD EPYC Processor (with IBPB), CPU MHz:               2894.562
+
+### compute
+
+| optimize method | seconds | cycles/eval | Glop/s |
+| --- | --- | --- | --- |
+| O3 | 1.646260 | 4.775115 | 1.214629 |
+| O0 | 4.551409 | 13.199648 | 0.439405 |
+| 02 | 1.563473 | 4.534315 | 1.279134 |
+| O1 | 4.923109 | 14.277421 | 0.406235 |
+
+
+### Compute vec
+report 
+```
+[wf2099@access1 lecture4]$ g++ -fopenmp -std=c++11 -O3 -march=native compute-vec.cpp && ./a.out -n 1000000000
+time = 1.631802
+flop-rate = 4.902162 Gflop/s
+
+time = 1.507671
+flop-rate = 5.306070 Gflop/s
+
+time = 1.510943
+flop-rate = 5.294581 Gflop/s
+```
+
+The different is:
+1. compute_fn0 is standard for loop.
+2. compute_fn1 is vectorized using AVX intrinsics.
+3. compute_fn2 is vectorized using Vec Class.
+
+### Compute vec pipeline
+report
+
+### Compare different M
+Observation
+1. As M increase from 1 to 8, both AVS intrinsics and Vec class method have significant improve. I think is the multi process/core result.
+2. When M increase from 4 to 9, the standard method also improve significantly. And when M = 16, it is better than vectorized method.
+
+
+M = 1
+```
+[wf2099@access1 lecture4]$ g++ -fopenmp -std=c++11 -O3 -march=native compute-vec-pipe.cpp && ./a.out -n 1000000000
+time = 1.514795
+flop-rate = 5.280798 Gflop/s
+
+time = 1.509405
+flop-rate = 5.299920 Gflop/s
+
+time = 1.506867
+flop-rate = 5.308907 Gflop/s
+```
+
+M = 4
+
+```
+[wf2099@access1 lecture4]$ g++ -fopenmp -std=c++11 -O3 -march=native compute-vec-pipe.cpp && ./a.out -n 1000000000
+time = 5.312123
+flop-rate = 6.023828 Gflop/s
+
+time = 1.506742
+flop-rate = 21.237194 Gflop/s
+
+time = 1.508429
+flop-rate = 21.213565 Gflop/s
+```
+
+M = 8
+
+```
+[wf2099@access1 lecture4]$ g++ -fopenmp -std=c++11 -O3 -march=native compute-vec-pipe.cpp && ./a.out -n 1000000000
+time = 1.740536
+flop-rate = 36.768448 Gflop/s
+
+time = 1.747677
+flop-rate = 36.609474 Gflop/s
+
+time = 1.588393
+flop-rate = 40.289816 Gflop/s
+```
+
+M = 16
+```
+[wf2099@access1 lecture4]$ g++ -fopenmp -std=c++11 -O3 -march=native compute-vec-pipe.cpp && ./a.out -n 1000000000
+time = 4.097863
+flop-rate = 31.234891 Gflop/s
+
+time = 5.596113
+flop-rate = 22.872821 Gflop/s
+
+time = 5.658605
+flop-rate = 22.620046 Gflop/s
+```
+
 
 
 # Appendix
