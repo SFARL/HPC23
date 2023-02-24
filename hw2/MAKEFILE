@@ -1,7 +1,0 @@
-CXX = g++
-CXXFLAGS = -std=c++11 -O3 -march=native -g
-
-sched: 
-	$(CC) $(CXXFLAGS) -o sched sched.cpp
-clean:
-	rm -f sched *~
