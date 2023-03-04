@@ -88,7 +88,7 @@ After fix Bug:
 | time (s)| 4.5 | 40.7 | 79.7 |
 | flops (Gflop/s) | 3.4 | 0.38 | 0.13 |
 | bandwidth (GB/s) | 13.79 | 1.53 | 0.5 |
-| ERR | 5.441071e+02 | 5.441071e+02 | 5.441071e+02 
+| ERR | 0 | 0| 0
 
 * Details are in the appendix.
 
@@ -105,7 +105,7 @@ double C_ij = c[i + j * m];
 | time (s)| 1.55 | 2.77 | 1.76 |
 | flops (Gflop/s) | 10 | 5.52 | 8.87 |
 | bandwidth (GB/s) | 40 | 22.12 | 35.54 |
-| ERR | 5.441071e+02 | 5.441071e+02 | 5.441071e+02 
+| ERR | 0 | 0 | 0
 
 * Details are in the appendix.
 code:

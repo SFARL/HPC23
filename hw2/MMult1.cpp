@@ -99,10 +99,10 @@ int main(int argc, char **argv)
         for (long i = 0; i < m * n; i++)
             c[i] = 0;
 
-        // for (long rep = 0; rep < NREPEATS; rep++)
-        // { // Compute reference solution
-        //     MMult0(m, n, k, a, b, c_ref);
-        // }
+        for (long rep = 0; rep < NREPEATS; rep++)
+        { // Compute reference solution
+            MMult0(m, n, k, a, b, c_ref);
+        }
 
         Timer t;
         t.tic();
