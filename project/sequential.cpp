@@ -3,7 +3,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
+#include <chrono>
 
+// sequential backtrack sudoku solution
 // Sample test ./sequential 9 ./9.txt ./9_ans.txt
 using namespace std;
 // Function to print the Sudoku grid
@@ -162,6 +164,7 @@ int main(int argc, char **argv)
 
     cout << "Input grid: " << endl;
     print_grid(grid, n);
+    auto t_start = std::chrono::high_resolution_clock::now();
     if (solve_sudoku(grid, n, 0, 0))
     {
         if (check_grid(grid, n, answer_file))
@@ -174,6 +177,8 @@ int main(int argc, char **argv)
     {
         cout << "No solution exists" << endl;
     }
+    auto t_end = std::chrono::high_resolution_clock::now();
+    cout << "time cost: " << std::chrono::duration<double, std::milli>(t_end - t_start).count() * 1e-9 << " s" << endl;
     free(grid);
     return 0;
 }
