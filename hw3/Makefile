@@ -1,16 +1,14 @@
-CXX = g++
-CXXFLAGS = -std=c++11 -O3 -march=native
-
-RM = rm -f
-MKDIRS = mkdir -p
+CXX = g++-12
+CXXFLAGS = -std=c++11 -O3 -march=native -fopenmp
 
 TARGETS = $(basename $(wildcard *.cpp))
 
 all : $(TARGETS)
 
-%:%.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@
+%:%.cpp *.h
+	$(CXX) $(CXXFLAGS) $< $(LIBS) -o $@
 
 clean:
-	$(RM) $(TARGETS)
+	-$(RM) $(TARGETS) *~
 
+.PHONY: all, clean
