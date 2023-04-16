@@ -138,6 +138,7 @@ bool solve_sudoku(int *grid, int n, int row, int col)
 bool build_sudoku(int *grid, int n, int row, int col)
 {
     // If all rows and columns are processed, the puzzle is solved
+
     if (row == n - 1 && col == n)
     {
         return true;
@@ -271,7 +272,7 @@ int main(int argc, char **argv)
     if (solve_sudoku(grid, n, 0, 0))
     {
         // if (check_grid(grid, n, ans))
-        printf("Solved grid: Correct! \n");
+        printf("Solved grid! \n");
         // else
         //     printf("Solved grid: Wrong! \n");
         // free(ans);
