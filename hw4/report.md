@@ -1,13 +1,19 @@
 # HW4
 
-## Greene network test
+## 1. Greene network test
 
-## MPI RING Communication
+The latency and bandwidth test on greene different nodes are as follows:
+
+```bash
+pingpong latency: 1.707000e-06 ms
+pingpong bandwidth: 6.062443e+05 GB/s
+```
+## 2. MPI RING Communication
 
 ### Start with
 By start with integer and check correctness, we can get the following result:
 
-```c
+```c++
 for (int repeat = 0; repeat < Nrepeat; repeat++)
     {
         MPI_Status status;
@@ -84,7 +90,7 @@ Total time: 3.754824
 ring bandwidth: 4.750672e-01 GB/s
 ```
 
-## MPI Scan
+## 3. MPI Scan
 I choose to write a MPI scan function, which is a MPI version of prefix sum. The code is as follows:
 
 ```c
@@ -216,3 +222,8 @@ Process 15 on cs474.hpc.nyu.edu out of 16
 Process 7 on cs472.hpc.nyu.edu out of 16
 time: 2
 ```
+
+## 4. Pitch your final project.
+I am going to do my project with Letao Chen
+
+We plan to use OpenMP and CUDA to solve high-level Sudoku problems.First, we will write a correct sequential version, and then use it as a baseline to compare the performance improvements brought by OpenMP and CUDA parallelization, and explore both strong scalability and weak scalability.

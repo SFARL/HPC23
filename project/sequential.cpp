@@ -250,7 +250,7 @@ int main(int argc, char **argv)
     // {
     //     ans[i] = grid[i];
     // }
-    int rm_cnt = n * n * 0.5;
+    int rm_cnt = n * n * 0.3;
     remove_standard(grid, n, rm_cnt);
     cout << "Input grid: " << endl;
     print_grid(grid, n);
